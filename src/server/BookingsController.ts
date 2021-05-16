@@ -24,7 +24,12 @@ app.post('/bookings', async (req, res) => {
 		const resp = await getBookings();
 		res.send(resp);
 	} catch (error) {
-		console.error('Error occured at /bookings', error);
-		res.status(500).send({ message: 'Failed to fetch', error });
+		let logged = error;
+		if (error.response) {
+			const { response: { status, data, headers } } = error;
+			logged = { status, data, headers };
+		}
+		console.error('Error occured at /bookings', logged);
+		res.status(500).send({ message: 'Failed to fetch', logged });
 	}
 });

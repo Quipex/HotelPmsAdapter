@@ -50,22 +50,22 @@ export async function getBookings(): Promise<FrontDeskResponse> {
 		cookies = await authAndGetCookies();
 	}
 	console.log('[get bookings] current cookies', cookies);
-	const resp = await axios.get(getUrl(), {
-		headers: {
-			'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"',
-			'X-Requested-With': 'XMLHttpRequest',
-			'sec-ch-ua-mobile': '?0',
-			'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.72 Safari/537.36',
-			'Accept': '*/*',
-			'Cookie': cookies.map(cookie => `${cookie.name}=${cookie.value}`).join(',')
-		}
-	});
 
-	if (resp.status !== 200) {
-		console.log('bad status while trying to get bookings', resp.status);
+	try {
+		const resp = await axios.get(getUrl(), {
+			headers: {
+				'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"',
+				'X-Requested-With': 'XMLHttpRequest',
+				'sec-ch-ua-mobile': '?0',
+				'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.72 Safari/537.36',
+				'Accept': '*/*',
+				'Cookie': cookies.map(cookie => `${cookie.name}=${cookie.value}`).join(',')
+			}
+		});
+		return resp.data;
+	} catch ({ response }) {
+		console.log('bad status while trying to get bookings', response.status);
 		cookies = await authAndGetCookies();
 		return await getBookings();
 	}
-
-	return resp.data;
 }
