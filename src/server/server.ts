@@ -5,7 +5,7 @@ const PORT = getEnv('PORT') ?? 9698;
 const app = express();
 
 app.use(function (req, res, next) {
-	console.log('New request: ', JSON.stringify(req, null, 2));
+	console.log('New request: ', { url: req.originalUrl, method: req.method, headers: req.headers });
 	console.log('Time: ', new Date().toLocaleString());
 	next();
 });
