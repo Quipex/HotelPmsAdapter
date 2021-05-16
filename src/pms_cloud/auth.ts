@@ -1,4 +1,4 @@
-import { Builder, By, IWebDriverCookie, Key, until, WebDriver } from 'selenium-webdriver';
+import { Builder, By, IWebDriverCookie, until, WebDriver } from 'selenium-webdriver';
 import { getEnv } from '../env';
 
 const ID = getEnv('CREDS_ID');
