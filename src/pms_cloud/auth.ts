@@ -1,4 +1,5 @@
 import { Builder, By, IWebDriverCookie, until, WebDriver } from 'selenium-webdriver';
+import { Options } from 'selenium-webdriver/chrome';
 import { getEnv } from '../env';
 
 const ID = getEnv('CREDS_ID');
@@ -44,7 +45,12 @@ async function performLogin(driver: WebDriver) {
 
 async function authAndGetCookies(): Promise<IWebDriverCookie[]> {
 	console.log('creating browser...');
-	const driver = await new Builder().forBrowser('chrome').build();
+	const chromeOptions = new Options();
+	chromeOptions.addArguments('--headless');
+	const driver = await new Builder()
+		.forBrowser('chrome')
+		.setChromeOptions(chromeOptions)
+		.build();
 	console.log('created');
 	try {
 		await driver.get('https://pmscloud.com/app/login');
