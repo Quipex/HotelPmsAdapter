@@ -10,6 +10,11 @@ app.use(function (req, res, next) {
 	next();
 });
 
+app.use(function (err: any, req: any, res: any, next: any) {
+	console.error(err);
+	res.status(500).send('Something broke!');
+});
+
 app.listen(PORT, () => {
 	console.log(`⚡️[server]: Server is running at https://localhost:${PORT}`);
 });

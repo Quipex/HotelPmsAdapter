@@ -24,6 +24,7 @@ app.post('/bookings', async (req, res) => {
 		const resp = await getBookings();
 		res.send(resp);
 	} catch (error) {
+		console.error('Error occured at /bookings', error);
 		res.status(500).send({ message: 'Failed to fetch', error });
 	}
 });
