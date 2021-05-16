@@ -5,9 +5,11 @@ const PORT = getEnv('PORT') ?? 9698;
 const app = express();
 
 app.use(function (req, res, next) {
-	console.log('Time:', new Date().toLocaleString());
+	console.log('New request: ', JSON.stringify(req, null, 2));
+	console.log('Time: ', new Date().toLocaleString());
 	next();
 });
+
 app.listen(PORT, () => {
 	console.log(`⚡️[server]: Server is running at https://localhost:${PORT}`);
 });

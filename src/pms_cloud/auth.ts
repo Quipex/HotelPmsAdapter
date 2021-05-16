@@ -43,7 +43,9 @@ async function performLogin(driver: WebDriver) {
 }
 
 async function authAndGetCookies(): Promise<IWebDriverCookie[]> {
+	console.log('creating browser...');
 	const driver = await new Builder().forBrowser('chrome').build();
+	console.log('created');
 	try {
 		await driver.get('https://pmscloud.com/app/login');
 		console.log('[auth] got to https://pmscloud.com/app/login and got cookies');
