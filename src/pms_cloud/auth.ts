@@ -1,10 +1,11 @@
 import { Builder, By, IWebDriverCookie, until, WebDriver } from 'selenium-webdriver';
-import { Options } from 'selenium-webdriver/chrome';
+import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
 import { getEnv } from '../env';
 
 const ID = getEnv('CREDS_ID');
 const LOGIN = getEnv('CREDS_LOGIN');
 const PW = getEnv('CREDS_PW');
+const CHROMEPATH = getEnv('CHROME_PATH') ?? '';
 
 async function isLoginScreen(driver: WebDriver) {
 	try {
@@ -50,6 +51,7 @@ async function authAndGetCookies(): Promise<IWebDriverCookie[]> {
 	const driver = await new Builder()
 		.forBrowser('chrome')
 		.setChromeOptions(chromeOptions)
+		.setChromeService(new ServiceBuilder(CHROMEPATH))
 		.build();
 	console.log('created');
 	try {
