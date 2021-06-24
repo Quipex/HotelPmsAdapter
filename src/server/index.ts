@@ -1,2 +1,2 @@
 import './server';
-import './BookingsController';
+import '../domain/bookings/BookingsController';
