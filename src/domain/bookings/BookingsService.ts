@@ -38,14 +38,46 @@ interface Booking {
 	type: string;// "ROOM_USE"
 }
 
-const filter = '%7B%22conn%22%3A%22AND%22%2C%22params%22%3A%5B%7B%22field%22%3A%22startDate%22%2C%22comparison%22%3A%22lte%22%2C%22type%22%3A%22date%22%2C%22value%22%3A1632960000%7D%2C%7B%22field%22%3A%22endDate%22%2C%22comparison%22%3A%22gte%22%2C%22type%22%3A%22date%22%2C%22value%22%3A1622505600%7D%2C%7B%22field%22%3A%22status%22%2C%22comparison%22%3A%22not_in%22%2C%22type%22%3A%22ROOM_USE_STATUS%22%2C%22values%22%3A%5B%22REFUSE%22%2C%22NOT_ARRIVED%22%5D%7D%5D%7D';
+function formFilter(startTime: number, endTime: number) {
+	const query = {
+		conn: 'AND',
+		params: [
+			{
+				field: 'startDate',
+				comparison: 'lte',
+				type: 'date',
+				// this is not a mistake, we invert dates on purpose
+				value: endTime
+			},
+			{
+				field: 'endDate',
+				comparison: 'gte',
+				type: 'date',
+				// this is not a mistake, we invert dates on purpose
+				value: startTime
+			},
+			{
+				field: 'status',
+				comparison: 'not_in',
+				type: 'ROOM_USE_STATUS',
+				values: [
+					'REFUSE',
+					'NOT_ARRIVED'
+				]
+			}
+		]
+	};
+	return encodeURIComponent(JSON.stringify(query));
+}
 
-function getUrl() {
-	return `/frontDesk?_dc=${Date.now()}&withFilter=${filter}&ajax_request=true`;
+function getUrl(startTime: number, endTime: number) {
+	return `/frontDesk?_dc=${Date.now()}&withFilter=${formFilter(startTime, endTime)}&ajax_request=true`;
 }
 
 export async function getBookings(): Promise<FrontDeskResponse> {
-	const resp = (await api.get(getUrl())).data as FrontDeskResponse;
+	const startTime = Date.UTC(2021, 5, 1) / 1000;
+	const endTime = Date.UTC(2021, 8, 30) / 1000;
+	const resp = (await api.get(getUrl(startTime, endTime))).data as FrontDeskResponse;
 	return {
 		...resp,
 		content: resp.content.map(b => ({...b, realRoomNumber: getRoom(b.roomId)}))
