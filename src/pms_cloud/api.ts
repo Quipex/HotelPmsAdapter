@@ -11,6 +11,18 @@ interface ApiResponse {
 	data?: unknown;
 }
 
+export interface PmsApiResponse<T> {
+	content: T[];
+	page: {
+		offset: number;
+		pageNumber: number;
+		pageSize: number;
+		sort: Record<string, unknown>;
+		totalCount: number;
+	},
+	success: boolean
+}
+
 function pmsUrl(path: string) {
 	const restUrl = path.startsWith('/') ? path : (`/${path}`);
 	return 'https://pmscloud.com/app/rest' + restUrl;
