@@ -36,7 +36,7 @@ async function callPmsApi(path: string, config: AxiosRequestConfig = {}, retry =
 	console.log('[api] current cookies', cookies);
 	try {
 		console.log('[api] making request...', path, config);
-		return await axios(pmsUrl(path), {
+		const response = await axios(pmsUrl(path), {
 			...config,
 			headers: {
 				'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"',
@@ -47,6 +47,8 @@ async function callPmsApi(path: string, config: AxiosRequestConfig = {}, retry =
 				'Cookie': cookies.map(cookie => `${cookie.name}=${cookie.value}`).join(',')
 			}
 		});
+		console.log('[api] received response.');
+		return response;
 	} catch (error) {
 		if (error.response) {
 			console.log('[api] bad status while trying to call api', error.response.status);
