@@ -35,6 +35,7 @@ async function callPmsApi(path: string, config: AxiosRequestConfig = {}, retry =
 	}
 	console.log('[api] current cookies', cookies);
 	try {
+		console.log('[api] making request...', path, config);
 		return await axios(pmsUrl(path), {
 			...config,
 			headers: {
