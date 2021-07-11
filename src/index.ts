@@ -1,4 +1,2 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
+import 'reflect-metadata'; // for typeorm
 import './server/index';
