@@ -1,6 +1,6 @@
 import { Builder, By, IWebDriverCookie, until, WebDriver } from 'selenium-webdriver';
 import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
-import { getEnv } from '../env';
+import { getEnv } from '../server/env';
 
 const ID = getEnv('CREDS_ID');
 const LOGIN = getEnv('CREDS_LOGIN');
@@ -44,7 +44,9 @@ async function performLogin(driver: WebDriver) {
 	console.log('[login] clicked submit');
 }
 
-async function authAndGetCookies(): Promise<IWebDriverCookie[]> {
+const MAX_RETRIES = Number(getEnv('MAX_API_RETRIES'));
+
+async function authAndGetCookies(retry = 0): Promise<IWebDriverCookie[]> {
 	console.log('creating browser...');
 	const chromeOptions = new Options();
 	chromeOptions.addArguments('--headless');
@@ -67,7 +69,10 @@ async function authAndGetCookies(): Promise<IWebDriverCookie[]> {
 			return getCookies(driver);
 		} else {
 			console.log('[auth] it\'s not home screen, retrying...');
-			return authAndGetCookies();
+			if (retry > MAX_RETRIES) {
+				return Promise.reject(new Error('Max retries exceeded'));
+			}
+			return authAndGetCookies(retry + 1);
 		}
 	} finally {
 		await driver.quit();

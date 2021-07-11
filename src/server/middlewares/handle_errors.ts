@@ -15,15 +15,15 @@ function handleErrors(err: any, req: Request, res: Response, _next: NextFunction
 interface ErrorReason {
 	response?: {
 		status: number,
-		data: any,
-		headers: any
+		data: unknown,
+		headers: unknown
 	},
-	request?: any,
+	request?: unknown,
 	config: {
 		baseURL?: string,
 		method?: string,
-		data: any,
-		headers: any
+		data: unknown,
+		headers: unknown
 	},
 	message?: string
 }
