@@ -1,22 +1,32 @@
-import { Request, Response } from 'express';
-import { getAllBookings } from './bookings/BookingsService';
-import app from '../server/server';
-import { getClients } from './bookings/ClientsService';
+import express, { Request, Response } from 'express';
+import { getAllBookings } from './bookings/BookingPmsService';
+import { getClients } from './client/ClientsPmsService';
 import asyncHandler from 'express-async-handler';
+import { searchClients } from './client/ClientPmsRepository';
 
-app.get('/', (req, res) => {
+const appRouter = express.Router();
+
+appRouter.get('/', (req, res) => {
 	res.send('hello');
 });
 
-app.post('/bookings', asyncHandler(async (_req: Request, res: Response) => {
-	const resp = await getAllBookings();
+appRouter.post('/bookings', asyncHandler(async (req: Request, res: Response) => {
+	const resp = await getAllBookings(Boolean(req.query.force));
 	res.send(resp);
 }));
 
-app.post('/client', asyncHandler(async (req: Request, res: Response) => {
-	if (!req.body.name) {
+appRouter.put('/clients/sync', asyncHandler(async (req: Request, res: Response) => {
+	await getClients();
+	res.sendStatus(200);
+}));
+
+appRouter.post('/clients/search', asyncHandler(async (req: Request, res: Response) => {
+	const requestName = req.body.name;
+	if (requestName === undefined || requestName === null) {
 		res.status(400).send({ message: 'missing name' });
 	}
-	const resp = await getClients(req.body.name);
+	const resp = await searchClients(requestName);
 	res.send(resp);
 }));
+
+export default appRouter;
