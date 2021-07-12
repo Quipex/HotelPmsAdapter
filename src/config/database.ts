@@ -1,5 +1,5 @@
 import { ConnectionOptions } from 'typeorm';
-import { getEnv } from '../server/env';
+import { getEnv } from './env';
 import { PmsBookingEntity } from '../domain/bookings/BookingPmsModel';
 import { PmsClientEntity } from '../domain/client/ClientPmsModel';
 

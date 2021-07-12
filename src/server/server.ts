@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { getEnv } from './env';
+import env from '../config/env';
 import checkHeaderValidAndReject from './middlewares/security';
 import logRequest from './middlewares/request_logger';
 import handleErrors from './middlewares/handle_errors';
@@ -8,7 +8,6 @@ import { createConnection } from 'typeorm';
 import appRouter from '../domain/AppController';
 import dbConfig from '../config/database';
 
-const PORT = getEnv('PORT') ?? 9698;
 const app = express();
 
 app.use(checkHeaderValidAndReject);
@@ -22,8 +21,8 @@ createConnection(dbConfig).then(() => {
 
 	app.use(appRouter);
 
-	app.listen(PORT, () => {
-		console.log(`⚡️[server]: Server is running on port ${PORT}`);
+	app.listen(env.port, () => {
+		console.log(`⚡️[server]: Server is running on port ${env.port}`);
 	});
 }).catch(err => {
 	console.error('Error while creating db connection', err);

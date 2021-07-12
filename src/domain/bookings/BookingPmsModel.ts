@@ -71,7 +71,7 @@ export class PmsBookingEntity {
 	groupTotalPaid?: number; // 0
 
 	@Column()
-	moved?: boolean;// false
+	moved?: boolean; // false
 
 	@Column()
 	roomId?: number; // 34
@@ -93,6 +93,9 @@ export class PmsBookingEntity {
 
 	@Column()
 	type?: string;// "ROOM_USE"
+
+	@Column()
+	realRoomNumber?: number;
 }
 
 export function mapPmsBookingsToEntities(pmsBooking: PmsBooking): PmsBookingEntity {

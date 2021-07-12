@@ -1,11 +1,6 @@
 import { Builder, By, IWebDriverCookie, until, WebDriver } from 'selenium-webdriver';
 import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
-import { getEnv } from '../server/env';
-
-const ID = getEnv('CREDS_ID');
-const LOGIN = getEnv('CREDS_LOGIN');
-const PW = getEnv('CREDS_PW');
-const CHROMEPATH = getEnv('CHROME_PATH') ?? '';
+import env from '../config/env';
 
 async function isLoginScreen(driver: WebDriver) {
 	try {
@@ -34,17 +29,15 @@ async function getCookies(driver: WebDriver) {
 
 async function performLogin(driver: WebDriver) {
 	console.log('[auth] performing login...');
-	await driver.findElement(By.name('hotel')).sendKeys(ID as string);
+	await driver.findElement(By.name('hotel')).sendKeys(env.pmsId as string);
 	console.log('[login] typed id');
-	await driver.findElement(By.name('login')).sendKeys(LOGIN as string);
+	await driver.findElement(By.name('login')).sendKeys(env.pmsLogin as string);
 	console.log('[login] typed login');
-	await driver.findElement(By.name('password')).sendKeys(PW as string);
+	await driver.findElement(By.name('password')).sendKeys(env.pmsPw as string);
 	console.log('[login] typed password');
 	await driver.findElement(By.id('submit')).click();
 	console.log('[login] clicked submit');
 }
-
-const MAX_RETRIES = Number(getEnv('MAX_API_RETRIES'));
 
 async function authAndGetCookies(retry = 0): Promise<IWebDriverCookie[]> {
 	console.log('creating browser...');
@@ -53,7 +46,7 @@ async function authAndGetCookies(retry = 0): Promise<IWebDriverCookie[]> {
 	const driver = await new Builder()
 		.forBrowser('chrome')
 		.setChromeOptions(chromeOptions)
-		.setChromeService(new ServiceBuilder(CHROMEPATH))
+		.setChromeService(new ServiceBuilder(env.chromePath))
 		.build();
 	console.log('created');
 	try {
@@ -69,7 +62,7 @@ async function authAndGetCookies(retry = 0): Promise<IWebDriverCookie[]> {
 			return getCookies(driver);
 		} else {
 			console.log('[auth] it\'s not home screen, retrying...');
-			if (retry > MAX_RETRIES) {
+			if (retry > env.maxApiRetries) {
 				return Promise.reject(new Error('Max retries exceeded'));
 			}
 			return authAndGetCookies(retry + 1);

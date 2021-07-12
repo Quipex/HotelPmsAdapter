@@ -1,13 +1,13 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { authAndGetCookies } from './auth';
 import { IWebDriverCookie } from 'selenium-webdriver';
-import { getEnv } from '../server/env';
+import env from '../config/env';
 import * as queryString from 'query-string';
-import { sleep } from './utils';
+import { sleep } from '../helpers/thread.helper';
 
 let cookies: IWebDriverCookie[] = [];
-const MAX_RETRIES = Number(getEnv('MAX_API_RETRIES'));
-const TIME_TO_SLEEP = Number(getEnv('TIME_TO_SLEEP'));
+const MAX_RETRIES = env.maxApiRetries;
+const TIME_TO_SLEEP = env.msToSleep_429;
 
 interface PmsPage {
 	offset: number;

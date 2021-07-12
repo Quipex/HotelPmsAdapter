@@ -1,6 +1,6 @@
 import api from '../../pms_cloud/api';
 import { getRoom } from '../../pms_cloud/constants';
-import { urlEncode } from '../../pms_cloud/utils';
+import { urlEncode } from '../../helpers/url.helper';
 import { and, SearchFilter, SearchParam } from '../../pms_cloud/search';
 import { mapPmsBookingsToEntities, PmsBooking } from './BookingPmsModel';
 import { saveBookings } from './BookingPmsRepository';
@@ -33,8 +33,7 @@ function composeBookingsUrlWithFilter(filter: SearchFilter) {
 const startTime = Date.UTC(2021, 5, 1) / 1000;
 const endTime = Date.UTC(2021, 8, 30) / 1000;
 
-// todo: implement cached and forced data
-export async function getAllBookings(force = false): Promise<PmsBooking[]> {
+export async function getAllBookings(): Promise<PmsBooking[]> {
 	const bookingsByDates = composeBookingsUrlWithFilter(and(...datesFilters(startTime, endTime)));
 	const pmsBookings = (await api.get(bookingsByDates, { extra: { limit: 100 } })) as PmsBooking[];
 	const pmsBookingsWithRooms = pmsBookings.map(b => ({

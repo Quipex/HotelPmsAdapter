@@ -1,4 +1,4 @@
-const pmsIdToRoom: {[key: string]: number} = {
+const pmsIdToRoom: { [key: string]: number } = {
 	23: 1,
 	40: 2,
 	24: 3,
@@ -45,13 +45,17 @@ const pmsIdToRoom: {[key: string]: number} = {
 	32809: 44,
 	32810: 45,
 	32803: 46,
+	32811: 47,
 	39: 48,
 	52: 49,
-	32811: 47,
 };
 
 export function getRoom(pmsId: number): number {
-	return Number(pmsIdToRoom[pmsId]);
+	const realRoom = pmsIdToRoom[pmsId];
+	if (!realRoom) {
+		console.warn('Room number not found for ', pmsId);
+	}
+	return realRoom;
 }
 
 export function getRoomPmsId(roomId: number): number | undefined {

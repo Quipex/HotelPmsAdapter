@@ -1,9 +1,8 @@
-import CyrillicToTranslit from 'cyrillic-to-translit-js';
-
 import api from '../../pms_cloud/api';
 import { mapPmsClientToEntity, PmsClient, PmsClientEntity } from './ClientPmsModel';
-import { urlEncode } from '../../pms_cloud/utils';
+import { urlEncode } from '../../helpers/url.helper';
 import { saveClients, searchClients } from './ClientPmsRepository';
+import developTranslatedNames from '../../helpers/translation.helper';
 
 
 function formFilter(name: string) {
@@ -49,30 +48,4 @@ export async function getClients(): Promise<PmsClient[]> {
 
 export async function findClients(name: string): Promise<PmsClientEntity[]> {
 	return await searchClients(name);
-}
-
-const latin = /^[a-zA-Z\s]+$/;
-const transUa = new CyrillicToTranslit({ preset: 'uk' });
-const transRu = new CyrillicToTranslit({ preset: 'ru' });
-
-function developTranslatedNames(client: PmsClientEntity): PmsClientEntity {
-	const fullNameOrig = `${client.lastName} ${client.firstName}`;
-	let fullNameEn, fullNameRu, fullNameUa;
-	if (latin.test(fullNameOrig)) {
-		fullNameEn = fullNameOrig;
-		fullNameRu = transRu.reverse(fullNameOrig);
-		fullNameUa = transUa.reverse(fullNameOrig);
-	} else {
-		fullNameRu = fullNameOrig;
-		fullNameUa = fullNameOrig;
-		fullNameEn = transRu.transform(fullNameRu);
-	}
-
-	return {
-		...client,
-		fullNameOrig,
-		fullNameEn,
-		fullNameRu,
-		fullNameUa
-	};
 }
