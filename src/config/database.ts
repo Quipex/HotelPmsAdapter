@@ -11,7 +11,11 @@ const config: ConnectionOptions = {
 	password: getEnv('DB_PASS') || 'admin',
 	database: getEnv('DB_DATABASE') || 'hotel_integration',
 	entities: [PmsBookingEntity, PmsClientEntity],
-	logging: true
+	logging: true,
+	migrations: ['migration/*.js'],
+	cli: {
+		migrationsDir: 'migration'
+	}
 };
 
 export default config;
