@@ -50,7 +50,7 @@ const pmsIdToRoom: { [key: string]: number } = {
 	52: 49,
 };
 
-export function getRoom(pmsId: number): number {
+export function getRoom(pmsId: number): number | undefined {
 	const realRoom = pmsIdToRoom[pmsId];
 	if (!realRoom) {
 		console.warn('Room number not found for ', pmsId);
