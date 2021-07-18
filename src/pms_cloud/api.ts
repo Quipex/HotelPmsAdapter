@@ -53,8 +53,9 @@ async function callPmsApi(path: string, config: RequestConfig = {}, retry = 0, a
 	}
 
 	try {
-		console.log('[api] making request...', path, config);
-		const response = await axios(pmsUrl(path), {
+		const url = pmsUrl(path);
+		console.log('[api] making request...', url, config);
+		const response = await axios(url, {
 			...config,
 			headers: {
 				'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"',
@@ -67,20 +68,31 @@ async function callPmsApi(path: string, config: RequestConfig = {}, retry = 0, a
 		});
 		console.log('[api] received response.');
 		const responseData = response.data as PmsApiResponse<unknown>;
-		if (responseData?.page) {
-			// pageNumber is zero-based
-			if (anyContentLeft(responseData.page)) {
-				return callPmsApi(path, withNextPage(config), 0, [...accumulatedData, ...responseData.content]);
+		if (!responseData) {
+			return [];
+		} else {
+			console.log('[api] handling response data.');
+			if (responseData?.page) {
+				// pageNumber is zero-based
+				if (anyContentLeft(responseData.page)) {
+					return callPmsApi(path, withNextPage(config), 0, [...accumulatedData, ...responseData.content]);
+				}
 			}
+			return [...accumulatedData, ...responseData.content];
 		}
-		return [...accumulatedData, ...responseData.content];
 	} catch (error) {
 		if (error.response) {
-			if (error.response.status === 429) {
+			const { status, data, headers } = error.response;
+			if (status === 429) {
 				console.warn(`[api] making requests too fast. Sleeping for ${TIME_TO_SLEEP}ms`);
 				await sleep(TIME_TO_SLEEP);
+			} else if (status >= 500) {
+				console.warn(`[api] got response ${status}`, { status, data, headers });
+			} else if (status === 401) {
+				console.warn('[api] got 401, need to log in again');
 			} else {
-				console.warn('[api] bad status while trying to call api', error.response.status);
+				console.warn('[api] got response with bad status', { status, data, headers });
+				return Promise.reject(`Bad response status ${status}`);
 			}
 		}
 		if (retry > MAX_RETRIES) {

@@ -96,6 +96,15 @@ export class PmsBookingEntity {
 
 	@Column()
 	realRoomNumber?: number;
+
+	@Column('timestamp')
+	addedDate?: Date;
+
+	@Column()
+	realRoomType?: string;
+
+	@Column()
+	remindedPrepayment?: Date;
 }
 
 export function mapPmsBookingsToEntities(pmsBooking: PmsBooking): PmsBookingEntity {

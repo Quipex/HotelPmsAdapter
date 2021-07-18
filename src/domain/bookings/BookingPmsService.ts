@@ -1,9 +1,18 @@
 import api from '../../pms_cloud/api';
-import { getRoom } from '../../pms_cloud/constants';
+import { getRoom } from '../../pms_cloud/room_constants';
 import { urlEncode } from '../../helpers/url.helper';
 import { and, SearchFilter, SearchParam } from '../../pms_cloud/search';
-import { mapPmsBookingsToEntities, PmsBooking } from './BookingPmsModel';
-import { saveBookings } from './BookingPmsRepository';
+import { mapPmsBookingsToEntities, PmsBooking, PmsBookingEntity } from './BookingPmsModel';
+import {
+	findAllBookings,
+	findArrivalsAt,
+	findBookingsAddedAfter,
+	findBookingsNotPayedArriveAfter,
+	findById,
+	saveBookings, setBookingPrepaymentWasReminded, setBookingToConfirmed
+} from './BookingPmsRepository';
+import { unixDateToDate } from '../../helpers/dates.helper';
+import { getRoomCategory } from '../../pms_cloud/room_categories_constants';
 
 
 function datesFilters(startTime: number, endTime: number): SearchParam[] {
@@ -30,19 +39,50 @@ function composeBookingsUrlWithFilter(filter: SearchFilter) {
 	return `/frontDesk?_dc=${Date.now()}&withFilter=${urlEncodedFilter}&ajax_request=true`;
 }
 
-const startTime = Date.UTC(2021, 5, 1) / 1000;
-const endTime = Date.UTC(2021, 8, 30) / 1000;
+const todayYear = new Date().getFullYear();
+const startTime = Date.UTC(todayYear, 5, 1) / 1000;
+const endTime = Date.UTC(todayYear, 8, 30) / 1000;
 
-export async function getAllBookings(): Promise<PmsBooking[]> {
-	const bookingsByDates = composeBookingsUrlWithFilter(and(...datesFilters(startTime, endTime)));
-	const pmsBookings = (await api.get(bookingsByDates, { extra: { limit: 100 } })) as PmsBooking[];
+export async function fetchPmsAndGetAllBookings(): Promise<PmsBooking[]> {
+	const bookingsByDatesPath = composeBookingsUrlWithFilter(and(...datesFilters(startTime, endTime)));
+	const pmsBookings = (await api.get(bookingsByDatesPath, { extra: { limit: 100 } })) as PmsBooking[];
 	const pmsBookingsWithRooms = pmsBookings.map(b => ({
 		...b,
-		realRoomNumber: getRoom(b.roomId)
+		realRoomNumber: getRoom(b.roomId),
+		realRoomType: getRoomCategory(b.roomTypeId)
 	}));
 	const pmsBookingEntities = pmsBookingsWithRooms.map(mapPmsBookingsToEntities);
 
 	await saveBookings(pmsBookingEntities);
 
 	return pmsBookingsWithRooms.filter(b => (b.status !== 'REFUSE' && b.status !== 'NOT_ARRIVED'));
+}
+
+export async function getAllBookings(): Promise<PmsBookingEntity[]> {
+	return findAllBookings();
+}
+
+export async function getArrivalsBy(unixDate: number): Promise<PmsBookingEntity[]> {
+	return findArrivalsAt(unixDateToDate(unixDate));
+}
+
+export async function getBookingsAddedAfter(unixDate: number): Promise<PmsBookingEntity[]> {
+	return findBookingsAddedAfter(unixDateToDate(unixDate));
+}
+
+export async function getBookingById(id: string): Promise<PmsBookingEntity | undefined> {
+	return findById(id);
+}
+
+export async function getBookingsNotPayedArriveAfter(unixDate: number): Promise<PmsBookingEntity[]> {
+	return findBookingsNotPayedArriveAfter(unixDateToDate(unixDate));
+}
+
+export async function confirmPrepayment(bookingId: string): Promise<void> {
+	await api.post(`/roomUse/${bookingId}/confirmed`);
+	await setBookingToConfirmed(+bookingId);
+}
+
+export async function remindedOfPrepayment(bookingId: string): Promise<void> {
+	await setBookingPrepaymentWasReminded(+bookingId);
 }
