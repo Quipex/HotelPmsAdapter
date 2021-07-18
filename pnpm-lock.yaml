@@ -13,6 +13,7 @@ specifiers:
   eslint: ^7.26.0
   express: ^4.17.1
   express-async-handler: ^1.1.4
+  moment: ^2.29.1
   nodemon: ^2.0.7
   pg: ^8.6.0
   query-string: ^7.0.1
@@ -30,6 +31,7 @@ dependencies:
   dotenv: 9.0.2
   express: 4.17.1
   express-async-handler: 1.1.4
+  moment: 2.29.1
   pg: 8.6.0
   query-string: 7.0.1
   reflect-metadata: 0.1.13
@@ -2130,6 +2132,10 @@ packages:
       subarg: 1.0.0
       through2: 2.0.5
       xtend: 4.0.2
+    dev: false
+
+  /moment/2.29.1:
+    resolution: {integrity: sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==}
     dev: false
 
   /ms/2.0.0:
