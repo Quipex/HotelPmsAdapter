@@ -9,9 +9,12 @@ import {
 	findBookingsAddedAfter,
 	findBookingsNotPayedArriveAfter,
 	findById,
-	saveBookings, setBookingPrepaymentWasReminded, setBookingToConfirmed
+	saveBookings,
+	setBookingPrepaymentWasReminded,
+	setBookingToConfirmed,
+	setBookingToLiving
 } from './BookingPmsRepository';
-import { unixDateToDate } from '../../helpers/dates.helper';
+import { dateToUnixSeconds, unixDateToDate } from '../../helpers/dates.helper';
 import { getRoomCategory } from '../../pms_cloud/room_categories_constants';
 
 
@@ -81,6 +84,15 @@ export async function getBookingsNotPayedArriveAfter(unixDate: number): Promise<
 export async function confirmPrepayment(bookingId: string): Promise<void> {
 	await api.post(`/roomUse/${bookingId}/confirmed`);
 	await setBookingToConfirmed(+bookingId);
+}
+
+export async function confirmLiving(bookingId: string): Promise<void> {
+	const booking = await findById(bookingId);
+	if (booking?.status === 'BOOKING_FREE') {
+		await confirmPrepayment(bookingId);
+	}
+	await api.post(`/roomUse/${bookingId}/checkedIn`, { data: { time: dateToUnixSeconds(new Date()) } });
+	await setBookingToLiving(+bookingId);
 }
 
 export async function remindedOfPrepayment(bookingId: string): Promise<void> {

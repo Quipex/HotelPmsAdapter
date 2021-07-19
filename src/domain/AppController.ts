@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import {
+	confirmLiving,
 	confirmPrepayment,
 	fetchPmsAndGetAllBookings,
 	getAllBookings,
@@ -78,6 +79,15 @@ appRouter.put('/booking/confirm', asyncHandler(async (req: Request, res: Respons
 		res.status(400).send({message: 'missing booking id'});
 	}
 	await confirmPrepayment(bookingId);
+	res.sendStatus(200);
+}));
+
+appRouter.put('/booking/confirm_living', asyncHandler(async (req: Request, res: Response) => {
+	const { bookingId } = req.body;
+	if (!bookingId) {
+		res.status(400).send({message: 'missing booking id'});
+	}
+	await confirmLiving(bookingId);
 	res.sendStatus(200);
 }));
 

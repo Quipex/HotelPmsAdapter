@@ -65,6 +65,11 @@ export async function setBookingToConfirmed(id: number): Promise<void> {
 	await bookingsRepository.update({ id }, { status: 'BOOKING_WARRANTY' });
 }
 
+export async function setBookingToLiving(id: number): Promise<void> {
+	const bookingsRepository = getRepository(PmsBookingEntity);
+	await bookingsRepository.update({ id }, { status: 'LIVING' });
+}
+
 export async function setBookingPrepaymentWasReminded(id: number): Promise<void> {
 	const bookingsRepository = getRepository(PmsBookingEntity);
 	await bookingsRepository.update({ id }, { remindedPrepayment: new Date() });
