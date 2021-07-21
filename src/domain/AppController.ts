@@ -2,12 +2,14 @@ import express, { Request, Response } from 'express';
 import {
 	confirmLiving,
 	confirmPrepayment,
+	expiredRemindedPrepayment,
 	fetchPmsAndGetAllBookings,
 	getAllBookings,
 	getArrivalsBy,
 	getBookingById,
 	getBookingsAddedAfter,
-	getBookingsNotPayedArriveAfter, remindedOfPrepayment
+	getBookingsNotPayedArriveAfter,
+	remindedOfPrepayment
 } from './bookings/BookingPmsService';
 import { findClients, getClients } from './client/ClientsPmsService';
 import asyncHandler from 'express-async-handler';
@@ -29,17 +31,17 @@ appRouter.get('/bookings/cached', asyncHandler(async (req: Request, res: Respons
 }));
 
 appRouter.get('/bookings/arrive', asyncHandler(async (req: Request, res: Response) => {
-	const { date } = req.query;
-	if (!date) {
+	const { date: unixDate } = req.query;
+	if (!unixDate) {
 		res.sendStatus(400);
 		return;
 	}
-	const resp = await getArrivalsBy(+date);
+	const resp = await getArrivalsBy(+unixDate);
 	res.send(resp);
 }));
 
-appRouter.get('/bookings/added_after', asyncHandler(async (req: Request, res: Response) => {
-	const { date: unixDate } = req.query;
+appRouter.get('/bookings/added', asyncHandler(async (req: Request, res: Response) => {
+	const { after: unixDate } = req.query;
 	if (!unixDate) {
 		res.sendStatus(400);
 		return;
@@ -58,8 +60,8 @@ appRouter.get('/booking/:id', asyncHandler(async (req: Request, res: Response) =
 	}
 }));
 
-appRouter.get('/bookings/not_payed/arrive_after', asyncHandler(async (req: Request, res: Response) => {
-	const { date: unixDate } = req.query;
+appRouter.get('/bookings/not_payed', asyncHandler(async (req: Request, res: Response) => {
+	const { arrive_after: unixDate } = req.query;
 	if (!unixDate) {
 		res.sendStatus(400);
 		return;
@@ -76,7 +78,7 @@ appRouter.put('/bookings/sync', asyncHandler(async (req: Request, res: Response)
 appRouter.put('/booking/confirm', asyncHandler(async (req: Request, res: Response) => {
 	const { bookingId } = req.body;
 	if (!bookingId) {
-		res.status(400).send({message: 'missing booking id'});
+		res.status(400).send({ message: 'missing booking id' });
 	}
 	await confirmPrepayment(bookingId);
 	res.sendStatus(200);
@@ -85,7 +87,7 @@ appRouter.put('/booking/confirm', asyncHandler(async (req: Request, res: Respons
 appRouter.put('/booking/confirm_living', asyncHandler(async (req: Request, res: Response) => {
 	const { bookingId } = req.body;
 	if (!bookingId) {
-		res.status(400).send({message: 'missing booking id'});
+		res.status(400).send({ message: 'missing booking id' });
 	}
 	await confirmLiving(bookingId);
 	res.sendStatus(200);
@@ -94,10 +96,15 @@ appRouter.put('/booking/confirm_living', asyncHandler(async (req: Request, res: 
 appRouter.put('/booking/reminded_prepayment', asyncHandler(async (req: Request, res: Response) => {
 	const { bookingId } = req.body;
 	if (!bookingId) {
-		res.status(400).send({message: 'missing booking id'});
+		res.status(400).send({ message: 'missing booking id' });
 	}
 	await remindedOfPrepayment(bookingId);
 	res.sendStatus(200);
+}));
+
+appRouter.get('/bookings/expired_remind', asyncHandler(async (req: Request, res: Response) => {
+	const bookings = await expiredRemindedPrepayment();
+	res.send(bookings);
 }));
 
 appRouter.put('/clients/sync', asyncHandler(async (req: Request, res: Response) => {

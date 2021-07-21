@@ -8,6 +8,7 @@ import {
 	findArrivalsAt,
 	findBookingsAddedAfter,
 	findBookingsNotPayedArriveAfter,
+	findBookingsWhoRemindedAndExpired,
 	findById,
 	saveBookings,
 	setBookingPrepaymentWasReminded,
@@ -97,4 +98,8 @@ export async function confirmLiving(bookingId: string): Promise<void> {
 
 export async function remindedOfPrepayment(bookingId: string): Promise<void> {
 	await setBookingPrepaymentWasReminded(+bookingId);
+}
+
+export async function expiredRemindedPrepayment(): Promise<PmsBookingEntity[]> {
+	return await findBookingsWhoRemindedAndExpired();
 }
