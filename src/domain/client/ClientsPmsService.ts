@@ -1,7 +1,7 @@
 import api from '../../pms_cloud/api';
 import { mapPmsClientToEntity, PmsClient, PmsClientEntity } from './ClientPmsModel';
 import { urlEncode } from '../../helpers/url.helper';
-import { saveClients, searchClients } from './ClientPmsRepository';
+import { findClient, saveClients, searchClients } from './ClientPmsRepository';
 import developTranslatedNames from '../../helpers/translation.helper';
 
 
@@ -48,4 +48,8 @@ export async function getClients(): Promise<PmsClient[]> {
 
 export async function findClients(name: string): Promise<PmsClientEntity[]> {
 	return await searchClients(name);
+}
+
+export async function findClientById(id: string): Promise<PmsClientEntity | undefined> {
+	return await findClient(+id);
 }

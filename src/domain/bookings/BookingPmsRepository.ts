@@ -2,6 +2,7 @@ import { PmsBookingEntity } from './BookingPmsModel';
 import { getRepository, In, LessThan, MoreThan } from 'typeorm';
 import { toDate } from '../../helpers/dates.helper';
 import moment from 'moment';
+import { PmsClientEntity } from '../client/ClientPmsModel';
 
 export const saveBookings = async (bookings: PmsBookingEntity[]): Promise<PmsBookingEntity[]> => {
 	const bookingsRepository = getRepository(PmsBookingEntity);
@@ -82,6 +83,20 @@ export async function findBookingsWhoRemindedAndExpired(): Promise<PmsBookingEnt
 		where: {
 			remindedPrepayment: LessThan(moment().subtract(24, 'hours')),
 			status: 'BOOKING_FREE',
+			moved: false
+		},
+		order: {
+			startDate: 'ASC',
+			realRoomNumber: 'ASC'
+		}
+	});
+}
+
+export async function findBookingsByOwner(clientId: number): Promise<PmsClientEntity[]> {
+	const bookingsRepository = getRepository(PmsBookingEntity);
+	return await bookingsRepository.find({
+		where: {
+			customerId: clientId,
 			moved: false
 		},
 		order: {

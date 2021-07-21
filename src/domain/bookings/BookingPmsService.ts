@@ -6,7 +6,7 @@ import { mapPmsBookingsToEntities, PmsBooking, PmsBookingEntity } from './Bookin
 import {
 	findAllBookings,
 	findArrivalsAt,
-	findBookingsAddedAfter,
+	findBookingsAddedAfter, findBookingsByOwner,
 	findBookingsNotPayedArriveAfter,
 	findBookingsWhoRemindedAndExpired,
 	findById,
@@ -17,6 +17,7 @@ import {
 } from './BookingPmsRepository';
 import { dateToUnixSeconds, unixDateToDate } from '../../helpers/dates.helper';
 import { getRoomCategory } from '../../pms_cloud/room_categories_constants';
+import { PmsClientEntity } from '../client/ClientPmsModel';
 
 
 function datesFilters(startTime: number, endTime: number): SearchParam[] {
@@ -102,4 +103,8 @@ export async function remindedOfPrepayment(bookingId: string): Promise<void> {
 
 export async function expiredRemindedPrepayment(): Promise<PmsBookingEntity[]> {
 	return await findBookingsWhoRemindedAndExpired();
+}
+
+export async function getBookingsByOwner(clientId: string): Promise<PmsClientEntity[]> {
+	return await findBookingsByOwner(+clientId);
 }

@@ -8,10 +8,11 @@ import {
 	getArrivalsBy,
 	getBookingById,
 	getBookingsAddedAfter,
+	getBookingsByOwner,
 	getBookingsNotPayedArriveAfter,
 	remindedOfPrepayment
 } from './bookings/BookingPmsService';
-import { findClients, getClients } from './client/ClientsPmsService';
+import { findClientById, findClients, getClients } from './client/ClientsPmsService';
 import asyncHandler from 'express-async-handler';
 
 const appRouter = express.Router();
@@ -107,6 +108,12 @@ appRouter.get('/bookings/expired_remind', asyncHandler(async (req: Request, res:
 	res.send(bookings);
 }));
 
+appRouter.put('/booking/create', asyncHandler(async (req: Request, res: Response) => {
+	const { room, startDate, endDate, fullName } = req.body;
+	const booking = await expiredRemindedPrepayment();
+	res.send(booking);
+}));
+
 appRouter.put('/clients/sync', asyncHandler(async (req: Request, res: Response) => {
 	await getClients();
 	res.sendStatus(200);
@@ -119,6 +126,18 @@ appRouter.post('/clients/search', asyncHandler(async (req: Request, res: Respons
 	}
 	const resp = await findClients(requestName);
 	res.send(resp);
+}));
+
+appRouter.get('/client/:id', asyncHandler(async (req: Request, res: Response) => {
+	const { id } = req.params;
+	const foundClient = await findClientById(id);
+	res.send(foundClient);
+}));
+
+appRouter.get('/bookings/owner/:id', asyncHandler(async (req: Request, res: Response) => {
+	const { id } = req.params;
+	const foundBookings = await getBookingsByOwner(id);
+	res.send(foundBookings);
 }));
 
 export default appRouter;

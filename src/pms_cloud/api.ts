@@ -35,7 +35,7 @@ interface RequestConfig extends AxiosRequestConfig {
 	}
 }
 
-async function callPmsApi(path: string, config: RequestConfig = {}, retry = 0, accumulatedData: unknown[] = []): Promise<unknown[]> {
+async function callPmsApi(path: string, config: RequestConfig = {}, retry = 0, accumulatedData: unknown[] = []): Promise<unknown> {
 	if (cookies.length === 0) {
 		console.log('[api] no cookies, getting some...');
 		cookies = await authAndGetCookies();
@@ -69,14 +69,14 @@ async function callPmsApi(path: string, config: RequestConfig = {}, retry = 0, a
 		console.log('[api] received response.');
 		const responseData = response.data as PmsApiResponse<unknown>;
 		if (!responseData) {
-			return [];
+			return;
 		} else {
 			console.log('[api] handling response data.');
-			if (responseData?.page) {
-				// pageNumber is zero-based
-				if (anyContentLeft(responseData.page)) {
-					return callPmsApi(path, withNextPage(config), 0, [...accumulatedData, ...responseData.content]);
-				}
+			if (responseData.page === undefined) {
+				return responseData;
+			}
+			if (anyContentLeft(responseData.page)) {
+				return callPmsApi(path, withNextPage(config), 0, [...accumulatedData, ...responseData.content]);
 			}
 			return [...accumulatedData, ...responseData.content];
 		}
@@ -126,13 +126,13 @@ const api = {
 	/**
 	 * Make a call and retry if it failed up to 3 times
 	 */
-	get: async function get(path: string, config?: RequestConfig): Promise<unknown[]> {
+	get: async function get(path: string, config?: RequestConfig): Promise<unknown> {
 		return callPmsApi(path, { method: 'GET', ...config });
 	},
 	/**
 	 * Make a call and retry if it failed up to 3 times
 	 */
-	post: async function post(path: string, config?: RequestConfig): Promise<unknown[]> {
+	post: async function post(path: string, config?: RequestConfig): Promise<unknown> {
 		return callPmsApi(path, { method: 'POST', ...config });
 	}
 };

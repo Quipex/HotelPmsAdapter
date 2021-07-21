@@ -15,3 +15,8 @@ export const searchClients = async (name: string): Promise<PmsClientEntity[]> =>
 			ORDER BY (findByName(cl, $1)) DESC
 	`, [name]);
 };
+
+export async function findClient(id: number): Promise<PmsClientEntity | undefined> {
+	const clientsRepo = getRepository(PmsClientEntity);
+	return clientsRepo.findOne(id);
+}
