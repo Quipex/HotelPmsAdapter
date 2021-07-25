@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import {
 	confirmLiving,
 	confirmPrepayment,
+	createBooking,
 	expiredRemindedPrepayment,
 	fetchPmsAndGetAllBookings,
 	getAllBookings,
@@ -109,9 +110,9 @@ appRouter.get('/bookings/expired_remind', asyncHandler(async (req: Request, res:
 }));
 
 appRouter.put('/booking/create', asyncHandler(async (req: Request, res: Response) => {
-	const { room, startDate, endDate, fullName } = req.body;
-	const booking = await expiredRemindedPrepayment();
-	res.send(booking);
+	const { roomNumber, from, to, guestName } = req.body;
+	const newId = await createBooking({ roomNumber: +roomNumber, from: new Date(from), to: new Date(to), guestName });
+	res.send({ newId });
 }));
 
 appRouter.put('/clients/sync', asyncHandler(async (req: Request, res: Response) => {

@@ -18,7 +18,7 @@ interface PmsPage {
 }
 
 export interface PmsApiResponse<T> {
-	content: T[];
+	content: T[] | any;
 	page: PmsPage;
 	success: boolean;
 }
@@ -78,7 +78,11 @@ async function callPmsApi(path: string, config: RequestConfig = {}, retry = 0, a
 			if (anyContentLeft(responseData.page)) {
 				return callPmsApi(path, withNextPage(config), 0, [...accumulatedData, ...responseData.content]);
 			}
-			return [...accumulatedData, ...responseData.content];
+			if (responseData.content instanceof Array) {
+				return [...accumulatedData, ...responseData.content];
+			} else {
+				return responseData.content;
+			}
 		}
 	} catch (error) {
 		if (error.response) {

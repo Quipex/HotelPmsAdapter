@@ -59,5 +59,9 @@ export function getRoom(pmsId: number): number | undefined {
 }
 
 export function getRoomPmsId(roomId: number): number | undefined {
-	return Number(Object.keys(pmsIdToRoom).find(pmsId => pmsIdToRoom[pmsId] === roomId));
+	const foundNumber = Object.keys(pmsIdToRoom).find(pmsId => pmsIdToRoom[pmsId] === roomId);
+	if (!foundNumber) {
+		console.warn('Room pms id not found for ', foundNumber);
+	}
+	return foundNumber ? Number(foundNumber) : undefined;
 }

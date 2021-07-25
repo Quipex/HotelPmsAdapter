@@ -6,7 +6,8 @@ import { mapPmsBookingsToEntities, PmsBooking, PmsBookingEntity } from './Bookin
 import {
 	findAllBookings,
 	findArrivalsAt,
-	findBookingsAddedAfter, findBookingsByOwner,
+	findBookingsAddedAfter,
+	findBookingsByOwner,
 	findBookingsNotPayedArriveAfter,
 	findBookingsWhoRemindedAndExpired,
 	findById,
@@ -18,6 +19,7 @@ import {
 import { dateToUnixSeconds, unixDateToDate } from '../../helpers/dates.helper';
 import { getRoomCategory } from '../../pms_cloud/room_categories_constants';
 import { PmsClientEntity } from '../client/ClientPmsModel';
+import createBookingPayload from '../../pms_cloud/create_booking';
 
 
 function datesFilters(startTime: number, endTime: number): SearchParam[] {
@@ -71,8 +73,8 @@ export async function getArrivalsBy(unixDate: number): Promise<PmsBookingEntity[
 	return findArrivalsAt(unixDateToDate(unixDate));
 }
 
-export async function getBookingsAddedAfter(unixDate: number): Promise<PmsBookingEntity[]> {
-	return findBookingsAddedAfter(unixDateToDate(unixDate));
+export async function getBookingsAddedAfter(unixSeconds: number): Promise<PmsBookingEntity[]> {
+	return findBookingsAddedAfter(unixDateToDate(unixSeconds));
 }
 
 export async function getBookingById(id: string): Promise<PmsBookingEntity | undefined> {
@@ -107,4 +109,19 @@ export async function expiredRemindedPrepayment(): Promise<PmsBookingEntity[]> {
 
 export async function getBookingsByOwner(clientId: string): Promise<PmsClientEntity[]> {
 	return await findBookingsByOwner(+clientId);
+}
+
+export interface CreateBookingPayload {
+	roomNumber: number
+	from: Date,
+	to: Date,
+	guestName: string
+}
+
+export async function createBooking(payload: CreateBookingPayload) {
+	const apiPayload = createBookingPayload(payload);
+	const respContent = await api.post('roomUse', { data: apiPayload });
+	// todo: replace with the response from api call persisted to db
+	await fetchPmsAndGetAllBookings();
+	return (respContent as any).id;
 }
